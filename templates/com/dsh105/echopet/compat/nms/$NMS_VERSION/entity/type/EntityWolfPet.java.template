@@ -62,8 +62,9 @@ public class EntityWolfPet extends EntityWolf implements EntityAgeablePet, IEnti
         setTamed(true); // Tame
     }
 
+    @Override
     public boolean isTamed() {
-        return getBukkitEntity().isTamed();
+        return super.isTamed();
     }
 
     @Override
