@@ -79,7 +79,21 @@ public interface EntityInsentientPet extends IAnimal, IEntityPet {
      * The field to check if the entity is jumping.
      * Uses reflection to bypass access checks
      */
+#if NMS_VERSION <= v1_7_R1
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "bd", boolean.class);
+#elif NMS_VERSION <= v1_7_R4
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "bc", boolean.class);
+#elif NMS_VERSION == v1_8_R1
     public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "be", boolean.class);
+#elif NMS_VERSION <= v1_8_R3
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "aY", boolean.class);
+#elif NMS_VERSION <= v1_9_R1
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "bc", boolean.class);
+#elif NMS_VERSION <= v1_9_R2
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "bd", boolean.class);
+#else
+    public static final SonarField<Boolean> IS_JUMPING_FIELD = SonarField.getField(EntityLiving.class, "be", boolean.class);
+#endif
 
     public default void initiateEntityPet() {
         this.resetEntitySize();
