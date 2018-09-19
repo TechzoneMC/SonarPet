@@ -2,6 +2,7 @@ package net.techcable.sonarpet.maven;
 
 import lombok.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,50 +73,22 @@ public class ResolvedMavenArtifact extends MavenArtifact {
         return repository;
     }
 
-    private static final String USER_AGENT;
-
-    static {
-        String name = ResolvedMavenArtifact.class.getName();
-        USER_AGENT = name.substring(name.lastIndexOf('.') + 1);
-    }
-
     public void downloadTo(Path dest) throws IOException, MavenException {
         requireNonNull(dest);
         if (fileLocation != null) {
             Files.copy(fileLocation, dest);
         } else {
             try (OutputStream out = Files.newOutputStream(dest, StandardOpenOption.CREATE_NEW)) {
-                // NOTE: Use SSLUtils in order to trust letsencrypt
-                HttpURLConnection connection = (HttpURLConnection) SSLUtils.openConnection(location);
-                connection.addRequestProperty("User-Agent", USER_AGENT);
-                connection.addRequestProperty("Accept-Encoding", "gzip, deflate");
-                connection.connect();
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                    throw new MavenException(this + " doesn't exist");
-                }
-                String encoding = connection.getContentEncoding();
-                try (InputStream rawInput = connection.getInputStream()) {
-                    final InputStream in;
-                    if (encoding != null) {
-                        switch (encoding) {
-                            case "gzip":
-                                in = new GZIPInputStream(connection.getInputStream());
-                                break;
-                            case "deflate":
-                                in = new DeflaterInputStream(connection.getInputStream());
-                                break;
-                            default:
-                                throw new IOException("Can't handle encoding: " + encoding);
-                        }
-                    } else {
-                        in = connection.getInputStream();
-                    }
+                HttpUtils.<IOException, Void>download(this.location, (in) -> {
                     byte[] buffer = new byte[4096];
                     int readBytes;
                     while ((readBytes = in.read(buffer)) >= 0) {
                         out.write(buffer, 0, readBytes);
                     }
-                }
+                    return null;
+                });
+            } catch (FileNotFoundException ignored) {
+                throw new MavenException(this + " doesn't exist");
             }
         }
     }
@@ -140,20 +113,7 @@ public class ResolvedMavenArtifact extends MavenArtifact {
         if (fileLocation != null) {
             return Files.exists(fileLocation);
         } else {
-            // NOTE: Use SSLUtils in order to trust letsencrypt
-            HttpURLConnection connection = (HttpURLConnection) SSLUtils.openConnection(location);
-            connection.addRequestProperty("User-Agent", USER_AGENT);
-            connection.setRequestMethod("HEAD");
-            connection.connect();
-            int responseCode = connection.getResponseCode();
-            switch (responseCode) {
-                case HttpURLConnection.HTTP_NOT_FOUND:
-                    return false;
-                case HttpURLConnection.HTTP_OK:
-                    return true;
-                default:
-                    throw new IOException("Unexpected response code: " + responseCode);
-            }
+            return HttpUtils.checkExistence(this.location);
         }
     }
 

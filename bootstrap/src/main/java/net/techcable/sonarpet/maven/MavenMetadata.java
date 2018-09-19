@@ -2,10 +2,7 @@ package net.techcable.sonarpet.maven;
 
 import lombok.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -52,16 +49,15 @@ public class MavenMetadata {
      */
     @Nullable
     public static MavenMetadata parse(URL url) throws IOException, MavenException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.connect();
-        if (connection.getResponseCode() == 404) {
+        try {
+            return HttpUtils.download(url, (input) -> {
+                try (Reader reader = new BufferedReader(new InputStreamReader(
+                        input, StandardCharsets.UTF_8))) {
+                    return parse(reader);
+                }
+            });
+        } catch (FileNotFoundException ignored) {
             return null;
-        }
-        try (Reader reader = new BufferedReader(new InputStreamReader(
-                connection.getInputStream(),
-                StandardCharsets.UTF_8
-        ))) {
-            return parse(reader);
         }
     }
 

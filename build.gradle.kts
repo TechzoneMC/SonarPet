@@ -15,7 +15,7 @@ buildscript {
 plugins {
     id("java")
     id("maven")
-    id("org.jetbrains.kotlin.jvm").version("1.1.2-2")
+    id("org.jetbrains.kotlin.jvm").version("1.2.51")
     id("com.github.johnrengelman.shadow").version("1.2.4").apply(false)
 }
 allprojects {
@@ -89,7 +89,7 @@ subprojects {
         testCompile("junit:junit:4.12")
         testCompile("com.googlecode.junit-toolbox:junit-toolbox:2.3")
         compile("net.techcable:pineapple:0.1.0-beta5")
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:1.1.2")
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:1.2.51")
         compile("com.dsh105:Commodus:1.0.6") {
             exclude(module = "Minecraft-Reflection")
         }
