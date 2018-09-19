@@ -3,6 +3,7 @@ package net.techcable.sonarpet.nms.versions.v1_12_R1;
 import lombok.*;
 
 import net.minecraft.server.v1_12_R1.Navigation;
+import net.minecraft.server.v1_12_R1.NavigationAbstract;
 import net.techcable.sonarpet.nms.PathEntity;
 
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
@@ -10,7 +11,7 @@ import org.bukkit.entity.Entity;
 
 @RequiredArgsConstructor
 public class NavigationImpl implements net.techcable.sonarpet.nms.Navigation {
-    private final Navigation handle;
+    private final NavigationAbstract handle;
 
 
     //
@@ -19,7 +20,7 @@ public class NavigationImpl implements net.techcable.sonarpet.nms.Navigation {
 
     @Override
     public boolean canEnterDoors() {
-        return handle.g(); // PathNavigateGround.getEnterDoors
+        return handle.r().c(); // PathNavigate.getNodeProcessor().getCanEnterDoors()
     }
 
     @Override

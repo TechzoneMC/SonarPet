@@ -7,13 +7,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.server.v1_12_R1.DamageSource;
-import net.minecraft.server.v1_12_R1.EntityInsentient;
-import net.minecraft.server.v1_12_R1.EntityLiving;
-import net.minecraft.server.v1_12_R1.GenericAttributes;
-import net.minecraft.server.v1_12_R1.Navigation;
-import net.minecraft.server.v1_12_R1.PathfinderGoalSelector;
-import net.minecraft.server.v1_12_R1.SoundEffect;
+import net.minecraft.server.v1_12_R1.*;
 import net.techcable.pineapple.reflection.PineappleField;
 import net.techcable.pineapple.reflection.Reflection;
 import net.techcable.sonarpet.nms.NMSInsentientEntity;
@@ -77,7 +71,10 @@ public class NMSEntityInsentientImpl extends NMSLivingEntityImpl implements NMSI
 
     @Override
     public void setCanSwim(boolean b) {
-        ((Navigation) getHandle().getNavigation()).c(b);
+        NavigationAbstract navigation = getHandle().getNavigation();
+        if (navigation instanceof Navigation) {
+            ((Navigation) navigation).c(b);
+        }
     }
 
     //
@@ -102,7 +99,7 @@ public class NMSEntityInsentientImpl extends NMSLivingEntityImpl implements NMSI
 
     @Override
     public net.techcable.sonarpet.nms.Navigation getNavigation() {
-        return new NavigationImpl((Navigation) getHandle().getNavigation());
+        return new NavigationImpl((NavigationAbstract) getHandle().getNavigation());
     }
 
     //
