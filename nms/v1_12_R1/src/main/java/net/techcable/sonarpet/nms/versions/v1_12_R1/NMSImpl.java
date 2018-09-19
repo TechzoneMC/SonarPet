@@ -62,7 +62,7 @@ public class NMSImpl implements INMS {
         if (bukkitVehicle == null) {
             net.minecraft.server.v1_12_R1.Entity vehicle = rider.getVehicle(); // This is how you *really* get the vehicle :/
             if (rider instanceof DismountingBlocked) {
-                ((DismountingBlocked) rider).reallyStopRiding();;
+                ((DismountingBlocked) rider).reallyStopRiding();
             }
             rider.stopRiding();
             if (vehicle != null) {

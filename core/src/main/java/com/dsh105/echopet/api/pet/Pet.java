@@ -254,7 +254,7 @@ public abstract class Pet implements IPet {
 
     @Override
     public void removeRider() {
-        if (rider != null) {
+        if (rider != null && rider.isSpawned()) {
             INMS.getInstance().mount(rider.getCraftPet(), null);
             rider.removePet(true);
             this.rider = null;
