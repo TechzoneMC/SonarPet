@@ -299,12 +299,12 @@ public abstract class Pet implements IPet {
         }
         Location l = teleportEvent.getTo();
         if (l.getWorld() == this.getLocation().getWorld()) {
-            if (this.getRider() != null) {
+            if (this.getRider() != null && this.getRider().isSpawned()) {
                 this.getRider().getCraftPet().eject();
                 this.getRider().getCraftPet().teleport(l);
             }
             this.getCraftPet().teleport(l);
-            if (this.getRider() != null) {
+            if (this.getRider() != null && this.getRider().isSpawned()) {
                 getCraftPet().eject();
                 getCraftPet().addPassenger(this.getRider().getCraftPet());
             }
@@ -399,7 +399,7 @@ public abstract class Pet implements IPet {
                 INMS.getInstance().mount(this.getEntityPet().getBukkitEntity(), null);
             }
         } else {
-            if (this.getRider() != null) {
+            if (this.getRider() != null && this.getRider().isSpawned()) {
                 //Entity rider = ((Entity) this.getRider().getCraftPet().getHandle());
                 //rider.mount(null);
                 INMS.getInstance().mount(this.getRider().getEntityPet().getBukkitEntity(), null);
