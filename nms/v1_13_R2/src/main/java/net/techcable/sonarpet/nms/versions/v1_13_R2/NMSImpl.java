@@ -3,13 +3,16 @@ package net.techcable.sonarpet.nms.versions.v1_13_R2;
 import net.minecraft.server.v1_13_R2.*;
 import net.minecraft.server.v1_13_R2.DamageSource;
 import net.techcable.pineapple.reflection.PineappleField;
+import net.techcable.sonarpet.item.ItemData;
 import net.techcable.sonarpet.item.SpawnEggItemData;
 import net.techcable.sonarpet.nms.*;
 import net.techcable.sonarpet.nms.versions.v1_13_R2.data.NMSSpawnEggItemData;
+import net.techcable.sonarpet.utils.ModernSpawnEggs;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
@@ -26,6 +29,9 @@ public class NMSImpl implements INMS {
     public SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
         checkNotNull(entityType, "Null entity type");
         checkNotNull(meta, "Null item meta");
+        if (!ModernSpawnEggs.hasSpawnEgg(entityType)) {
+            entityType = SpawnEggItemData.DEFAULT_TYPE;
+        }
         return new NMSSpawnEggItemData((byte) 0, meta, entityType);
     }
 

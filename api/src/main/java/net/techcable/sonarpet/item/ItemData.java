@@ -5,14 +5,17 @@ import lombok.*;
 import java.util.List;
 import java.util.Optional;
 
+import net.techcable.sonarpet.item.ModernMaterialSystem;
 import net.techcable.sonarpet.nms.INMS;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import net.techcable.sonarpet.utils.ModernSpawnEggs;
+import net.techcable.sonarpet.utils.NmsVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.MonsterEggs;
@@ -74,40 +77,26 @@ public class ItemData {
          * NOTE: I'm keeping Material.MONSTER_EGG out of the switch
          * since it's deprecated on 1.13.
          * It'll now be conditional on whether we have 'modern' monster egg support
+         * Furthermore we have to switch on the raw string,
+         * since bukkit does some crazy madness with the ordinal.
          */
-        switch (type) {
-            case INK_SACK:
+        switch (type.name()) {
+            case "INK_SACK":
                 return new DyeItemData((byte) rawData, meta);
-            case SKULL_ITEM:
+            case "SKULL_ITEM":
                 return new SkullItemData((byte) rawData, meta);
-            case MONSTER_EGG:
-            case STAINED_CLAY:
+            case "STAINED_CLAY":
                 return new StainedClayItemData((byte) rawData, meta);
-            case WOOL:
+            case "WOOL":
                 return new StainedClayItemData((byte) rawData, meta);
             default:
                 return new ItemData(type, (byte) rawData, meta);
         }
     }
 
-    public MaterialData getMaterialData() {
-        return type.getNewData(rawData);
-    }
-
-    public ItemData withType(Material type) {
-        Preconditions.checkNotNull(type, "Null material");
-        return withMaterialData(new MaterialData(type, getRawData()));
-    }
-
-
     public ItemData withRawData(int rawData) {
         Preconditions.checkArgument((byte) rawData == rawData, "Raw data doesn't fit into byte: %s", rawData);
-        return withMaterialData(new MaterialData(getType(), (byte) rawData));
-    }
-
-    public ItemData withMaterialData(MaterialData data) {
-        Preconditions.checkNotNull(data, "Material data");
-        return this.withType(data.getItemType()).withRawData(data.getData());
+        return ItemData.create(this.type, rawData, this.meta);
     }
 
     public ItemData withMeta(ItemMeta meta) {
@@ -161,5 +150,21 @@ public class ItemData {
         ItemStack stack = new ItemStack(getType(), amount, getRawData());
         stack.setItemMeta(this.meta.clone());
         return stack;
+    }
+
+    public MaterialData getLegacyMaterialData() {
+        NmsVersion.ensureBefore(NmsVersion.v1_13_R2);
+        return this.type.getNewData(this.rawData);
+    }
+
+    public Object getModernBlockData() {
+        NmsVersion.ensureAtLeast(NmsVersion.v1_13_R2);
+        if (this.meta instanceof BlockStateMeta) {
+            return ModernMaterialSystem.getDataFromState(
+                    ((BlockStateMeta) this.meta).getBlockState()
+            );
+        } else {
+            return ModernMaterialSystem.createDefaultBlockData(this.type);
+        }
     }
 }

@@ -23,6 +23,7 @@ import com.dsh105.echopet.compat.api.entity.PetData;
 import com.dsh105.echopet.compat.api.entity.PetType;
 import com.dsh105.echopet.compat.api.util.menu.SelectorIcon;
 import com.dsh105.echopet.compat.api.util.menu.SelectorLayout;
+import net.techcable.sonarpet.item.MaterialSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -156,8 +157,8 @@ public class ConfigOptions extends Options {
                 int friendlySlot = icon.getSlot() + 1;
                 set("petSelector.menu.slot-" + friendlySlot + ".command", icon.getCommand());
                 set("petSelector.menu.slot-" + friendlySlot + ".petType", icon.getPetType() == null ? "" : icon.getPetType().toString());
-                set("petSelector.menu.slot-" + friendlySlot + ".materialId", icon.getType().getId());
-                set("petSelector.menu.slot-" + friendlySlot + ".materialData", icon.getMaterialData().getData());
+                // NOTE: Temporarily upgraded from old system
+                set("petSelector.menu.slot-" + friendlySlot + ".material", MaterialSystem.getInstance().serializeData(icon.getItemData()));
                 set("petSelector.menu.slot-" + friendlySlot + ".name", (icon.getName() == null ? "" : icon.getName()).replace(ChatColor.COLOR_CHAR, '&'));
                 ArrayList<String> lore = new ArrayList<String>();
                 for (String s : icon.getLore()) {

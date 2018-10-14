@@ -22,7 +22,7 @@ public class NMSSpawnEggItemData extends SpawnEggItemData {
 
     @Override
     public EntityType getSpawnedType() {
-        return ModernSpawnEggs.getSpawnEggType(this.getMaterialData().getItemType());
+        return ModernSpawnEggs.getSpawnEggType(this.getType());
     }
 
 
@@ -31,16 +31,5 @@ public class NMSSpawnEggItemData extends SpawnEggItemData {
         ItemStack stack = new ItemStack(item);
         stack.setTag(Preconditions.checkNotNull(tag, "Null nbt tag"));
         return CraftItemStack.getItemMeta(stack);
-    }
-
-    public static NBTTagCompound getTagFromMeta(Material type, ItemMeta meta) {
-        Preconditions.checkNotNull(meta, "Null meta");
-        Preconditions.checkNotNull(type, "Null type");
-        Preconditions.checkArgument(Bukkit.getItemFactory().isApplicable(meta, type), "Meta %s isn't applicable to %s", meta, type);
-        Item item = CraftMagicNumbers.getItem(type);
-        ItemStack stack = new ItemStack(item);
-        boolean worked = CraftItemStack.setItemMeta(stack, meta);
-        if (!worked) throw new RuntimeException("Didn't work");
-        return stack.getTag();
     }
 }

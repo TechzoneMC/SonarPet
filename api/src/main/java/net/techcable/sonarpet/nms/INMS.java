@@ -44,7 +44,6 @@ import static net.techcable.sonarpet.utils.Versioning.*;
 
 @SuppressWarnings("deprecation")
 public interface INMS {
-
     default SpawnEggItemData createSpawnEggData(Material material, byte rawData, ItemMeta meta) {
         EntityType entityType;
         if (ModernSpawnEggs.isSupported()) {
@@ -66,7 +65,7 @@ public interface INMS {
             @Override
             @SuppressWarnings("depreciation") // Bukkit is okay on versions less than 1.9, and we've already checked above
             public EntityType getSpawnedType() {
-                return ((SpawnEgg) getMaterialData()).getSpawnedType();
+                return ((SpawnEgg) getLegacyMaterialData()).getSpawnedType();
             }
         };
     }

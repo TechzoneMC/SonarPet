@@ -64,15 +64,11 @@ public enum SelectorItem {
     }
 
     public Material getType() {
-        return getMaterialData().getItemType();
+        return getItemData().getType();
     }
 
     public int getAmount() {
         return amount;
-    }
-
-    public MaterialData getMaterialData() {
-        return getItemData().getMaterialData();
     }
 
     public String getName() {

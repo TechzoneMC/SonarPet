@@ -1,10 +1,13 @@
 package net.techcable.sonarpet.utils;
 
+import lombok.SneakyThrows;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ModernSpawnEggs {
     private ModernSpawnEggs() {}
@@ -44,10 +47,13 @@ public class ModernSpawnEggs {
     }
     private static final String SUFFIX = "_SPAWN_EGG";
     @Nullable
+    @SneakyThrows(ReflectiveOperationException.class)
     private static Material tryGetEggMaterial(EntityType entityType) {
         ModernSpawnEggs.ensureSupported();
+        Class materialClass = Class.forName("org.bukkit.Material");
         try {
-            return Material.valueOf(entityType.name() + SUFFIX);
+            //noinspection unchecked
+            return (Material) Enum.valueOf(materialClass, entityType.name() + SUFFIX);
         } catch (IllegalArgumentException ignored) {
             return null;
         }

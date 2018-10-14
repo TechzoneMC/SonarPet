@@ -24,6 +24,7 @@ import com.dsh105.echopet.compat.api.config.PetItem;
 import com.dsh105.echopet.compat.api.entity.PetType;
 import com.google.common.collect.ImmutableList;
 
+import net.techcable.sonarpet.item.MaterialSystem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
@@ -83,8 +84,9 @@ public class SelectorLayout {
             if (petType != null && GeneralUtil.isEnumType(PetType.class, petType.toUpperCase())) {
                 pt = PetType.valueOf(petType.toUpperCase());
             }
-            int id = config.getInt(s + ".slot-" + i + ".materialId");
-            int data = config.getInt(s + ".slot-" + i + ".materialData");
+            // TODO: Convert from legacy ids
+            ItemData basicData = MaterialSystem.getInstance().parseData(
+                    config.getString(s + ".slot-" + i + ".material"));
             String name = config.getString(s + ".slot-" + i + ".name");
             if (name == null) {
                 continue;
@@ -99,8 +101,7 @@ public class SelectorLayout {
                     loreList.add(ChatColor.translateAlternateColorCodes('&', part));
                 }
             }
-            Material type = Material.getMaterial(id);
-            selectorLayout.add(new SelectorIcon(i - 1, cmd, pt, ItemData.create(type, data).withDisplayName(name.trim().isEmpty() ? Optional.empty() : Optional.of(name)).withLore(loreList)));
+            selectorLayout.add(new SelectorIcon(i - 1, cmd, pt, basicData.withDisplayName(name.trim().isEmpty() ? Optional.empty() : Optional.of(name)).withLore(loreList)));
         }
 
         selectorMenu = new SelectorMenu();

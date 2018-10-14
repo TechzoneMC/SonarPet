@@ -121,4 +121,29 @@ public enum NmsVersion {
     public static NmsVersion current() {
         return Versioning.NMS_VERSION;
     }
+
+    public boolean isAtLeast(NmsVersion minimum) {
+        return this.compareTo(minimum) >= 0;
+    }
+    public boolean isBefore(NmsVersion other) {
+        return this.compareTo(other) < 0;
+    }
+    public static void ensureAtLeast(NmsVersion minimum) {
+        NmsVersion current = NmsVersion.current();
+        if (!current.isAtLeast(minimum)) {
+            throw new IllegalStateException("Expected NMS version at least "
+                    + minimum
+                    + ", but got "
+                    + current);
+        }
+    }
+    public static void ensureBefore(NmsVersion maximum) {
+        NmsVersion current = NmsVersion.current();
+        if (!current.isBefore(maximum)) {
+            throw new IllegalStateException("Expected NMS version before "
+                    + maximum
+                    + ", but got "
+                    + current);
+        }
+    }
 }
