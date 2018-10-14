@@ -1,0 +1,23 @@
+{
+    "metadata": {
+        "ENDERMAN_SCREAMING_METADATA_ID": 13,
+        "WITHER_SHIELDED_METADATA_ID": 15
+    },
+    "obfuscated_methods": {
+        "ENTITY_TICK_METHOD": "tick", // MCP: Entity.tick
+        // NOTE: As of 1.12, signature is (FFF) instead of (FF)
+        "ENTITY_MOVE_METHOD": "a", // MCP: EntityLivingBase.travel
+        "ON_STEP_METHOD": "a", // MCP: EntityLivingBase.travel
+        "ON_INTERACT_METHOD": "a", // MCP: EntityLiving.canBeLeashedTo
+        "ENTITY_PROCEDURAL_AI_METHOD": "J", // EntityLiving.updateAITasks
+        // NOTE: MCP renamed it in 1.13, it seems to have undergone some sort of change
+        "LIVING_UPDATE_METHOD": "n", // EntityLivingBase.livingTick
+        "RABBIT_SET_MOVEMENT_SPEED": "c" // EntityRabbit.setMovementSpeed
+    },
+    "obfuscated_fields": {
+        "ENTITY_SIDEWAYS_MOTION_FIELD": "bh", // EntityLivingBase.moveStrafing
+        "ENTITY_FORWARD_MOTION_FIELD": "bj", // EntityLivingBase.moveForward
+        // NOTE: New third parameter to move() as of 1.12
+        "ENTITY_UPWARDS_MOTION_FIELD": "bi" // EntityLivingBase.moveVertical
+    }
+}

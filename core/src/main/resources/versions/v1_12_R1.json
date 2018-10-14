@@ -15,6 +15,8 @@
     "obfuscated_fields": {
         "ENTITY_SIDEWAYS_MOTION_FIELD": "be", // EntityLivingBase.moveStrafing
         "ENTITY_FORWARD_MOTION_FIELD": "bf", // EntityLivingBase.moveForward
-        "ENTITY_UPWARDS_MOTION_FIELD": "bg" // New third parameter to move() as of 1.12
+        // NOTE: New third parameter to move() as of 1.12
+        // TODO: Obfuscated names seems to be swapped with moveForward
+        "ENTITY_UPWARDS_MOTION_FIELD": "bg" // EntityLivingBase.moveVertical
     }
 }

@@ -1,63 +1,43 @@
-package net.techcable.sonarpet.nms.versions.v1_9_R2;
+package net.techcable.sonarpet.nms.versions.v1_13_R2;
 
-import net.minecraft.server.v1_9_R2.EntityHorse;
-import net.minecraft.server.v1_9_R2.EntityInsentient;
+import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_13_R2.DamageSource;
 import net.techcable.pineapple.reflection.PineappleField;
-import net.techcable.sonarpet.nms.DismountingBlocked;
-import net.techcable.sonarpet.nms.EntityRegistry;
-import net.techcable.sonarpet.nms.INMS;
-import com.google.common.collect.ImmutableMap;
-
-import net.minecraft.server.v1_9_R2.Block;
-import net.minecraft.server.v1_9_R2.DamageSource;
-import net.minecraft.server.v1_9_R2.EntityHuman;
-import net.minecraft.server.v1_9_R2.EntityLiving;
-import net.minecraft.server.v1_9_R2.EntityPlayer;
-import net.minecraft.server.v1_9_R2.Packet;
-import net.minecraft.server.v1_9_R2.PacketPlayOutMount;
-import net.minecraft.server.v1_9_R2.SoundEffect;
-import net.minecraft.server.v1_9_R2.SoundEffectType;
 import net.techcable.sonarpet.item.SpawnEggItemData;
-import net.techcable.sonarpet.nms.BlockSoundData;
-import net.techcable.sonarpet.nms.NMSEntity;
-import net.techcable.sonarpet.nms.NMSInsentientEntity;
-import net.techcable.sonarpet.nms.NMSSound;
-import net.techcable.sonarpet.nms.versions.v1_9_R2.data.NMSSpawnEggItemData;
-
+import net.techcable.sonarpet.nms.*;
+import net.techcable.sonarpet.nms.versions.v1_13_R2.data.NMSSpawnEggItemData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_9_R2.CraftSound;
-import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_9_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.SpawnEgg;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class NMSImpl implements INMS {
     @Override
     public SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
         checkNotNull(entityType, "Null entity type");
         checkNotNull(meta, "Null item meta");
-        return new NMSSpawnEggItemData(new SpawnEgg(entityType).getData(), meta, entityType); // Pretend we use metadata to make the code happy
+        return new NMSSpawnEggItemData((byte) 0, meta, entityType);
     }
 
     @Override
     public void mount(Entity bukkitRider, Entity bukkitVehicle) {
-        net.minecraft.server.v1_9_R2.Entity rider = ((CraftEntity) bukkitRider).getHandle();
+        net.minecraft.server.v1_13_R2.Entity rider = ((CraftEntity) bukkitRider).getHandle();
         if (bukkitVehicle == null) {
-            net.minecraft.server.v1_9_R2.Entity vehicle = rider.getVehicle(); // This is how you *really* get the vehicle :/
+            net.minecraft.server.v1_13_R2.Entity vehicle = rider.getVehicle(); // This is how you *really* get the vehicle :/
             if (rider instanceof DismountingBlocked) {
                 ((DismountingBlocked) rider).reallyStopRiding();
-            } else {
-                rider.stopRiding();
             }
+            rider.stopRiding();
             if (vehicle != null) {
                 Packet packet = new PacketPlayOutMount(vehicle);
                 for (EntityHuman human : rider.world.players) {
@@ -66,7 +46,7 @@ public class NMSImpl implements INMS {
             }
         } else {
             checkArgument(bukkitRider.getWorld().equals(bukkitVehicle.getWorld()), "Rider is in world %s, while vehicle is in world %s", bukkitRider.getWorld().getName(), bukkitVehicle.getWorld().getName());
-            net.minecraft.server.v1_9_R2.Entity vehicle = ((CraftEntity) bukkitVehicle).getHandle();
+            net.minecraft.server.v1_13_R2.Entity vehicle = ((CraftEntity) bukkitVehicle).getHandle();
             rider.a(vehicle, true); // !! Obfuscated !!
             Packet packet = new PacketPlayOutMount(vehicle);
             for (EntityHuman human : rider.world.players) {
@@ -99,11 +79,11 @@ public class NMSImpl implements INMS {
 
     @Override
     public NMSEntity wrapEntity(Entity entity) {
-        net.minecraft.server.v1_9_R2.Entity handle = ((CraftEntity) entity).getHandle();
+        net.minecraft.server.v1_13_R2.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityPlayer) {
             return new NMSPlayerImpl((EntityPlayer) handle);
-        } else if (handle instanceof EntityHorse) {
-            return new NMSEntityHorseImpl((EntityHorse) handle);
+        } else if (handle instanceof EntityHorseAbstract) {
+            return new NMSEntityHorseImpl((EntityHorseAbstract) handle);
         } else if (handle instanceof EntityInsentient) {
             return new NMSEntityInsentientImpl((EntityInsentient) handle);
         } else if (handle instanceof EntityLiving) {
@@ -117,13 +97,14 @@ public class NMSImpl implements INMS {
     @Override
     @SuppressWarnings("deprecation") // I know about ur stupid magic value warning mom
     public BlockSoundData getBlockSoundData(Material material) {
-        return new BlockSoundDataImpl(STEP_SOUND_FIELD.get(Block.getById(material.getId())));
+        Block block = Block.getByCombinedId(material.getId()).getBlock();
+        return new BlockSoundDataImpl(STEP_SOUND_FIELD.get(block));
     }
 
     @Override
     @SuppressWarnings("deprecation") // I know about ur stupid magic value warning mom
     public boolean isLiquid(Material block) {
-        return Block.getById(block.getId()).getBlockData().getMaterial().isLiquid();
+        return Block.getByCombinedId(block.getId()).getMaterial().isLiquid();
     }
 
     @Override

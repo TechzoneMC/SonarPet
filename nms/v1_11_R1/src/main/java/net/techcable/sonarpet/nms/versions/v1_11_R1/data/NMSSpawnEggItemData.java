@@ -24,7 +24,7 @@ public class NMSSpawnEggItemData extends SpawnEggItemData {
     }
 
     public NMSSpawnEggItemData(byte rawData, ItemMeta meta, EntityType type) {
-        super(rawData, createMetaWithEntityType(meta, type));
+        super(Material.MONSTER_EGG, rawData, createMetaWithEntityType(meta, type));
     }
 
     @Override

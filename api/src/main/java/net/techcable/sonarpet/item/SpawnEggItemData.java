@@ -1,8 +1,7 @@
 package net.techcable.sonarpet.item;
 
-import net.techcable.sonarpet.nms.INMS;
 import com.google.common.base.Preconditions;
-
+import net.techcable.sonarpet.nms.INMS;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -12,8 +11,8 @@ public abstract class SpawnEggItemData extends ItemData {
 
     public static final EntityType DEFAULT_TYPE = EntityType.PIG;
 
-    protected SpawnEggItemData(byte rawData, ItemMeta meta) {
-        super(Material.MONSTER_EGG, rawData, meta);
+    protected SpawnEggItemData(Material m, byte rawData, ItemMeta meta) {
+        super(m, rawData, meta);
     }
 
     public SpawnEggItemData withSpawnedType(EntityType entityType) {

@@ -29,7 +29,8 @@ public enum NmsVersion {
     v1_9_R2,
     v1_10_R1,
     v1_11_R1,
-    v1_12_R1;
+    v1_12_R1,
+    v1_13_R2;
 
     public static final NmsVersion LATEST, EARLIEST;
     private ImmutableMap<String, Integer> metadata;

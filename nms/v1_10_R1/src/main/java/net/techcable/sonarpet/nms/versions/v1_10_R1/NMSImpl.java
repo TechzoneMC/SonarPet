@@ -42,13 +42,6 @@ import static com.google.common.base.Preconditions.*;
 
 public class NMSImpl implements INMS {
     @Override
-    public SpawnEggItemData createSpawnEggData(byte rawData, ItemMeta meta) {
-        EntityType entityType = NMSSpawnEggItemData.getSpawnEggEntityTypeIfPresent(meta).orElse(EntityType.fromId(rawData));
-        if (entityType == null) entityType = SpawnEggItemData.DEFAULT_TYPE; // 'Fix' broken configs
-        return new NMSSpawnEggItemData(rawData, meta, entityType);
-    }
-
-    @Override
     public SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
         checkNotNull(entityType, "Null entity type");
         checkNotNull(meta, "Null item meta");

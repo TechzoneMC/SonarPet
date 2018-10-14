@@ -9,11 +9,13 @@ import net.techcable.sonarpet.nms.INMS;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import net.techcable.sonarpet.utils.ModernSpawnEggs;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.bukkit.material.MonsterEggs;
 
 @Getter
 public class ItemData {
@@ -58,13 +60,27 @@ public class ItemData {
         Preconditions.checkNotNull(type, "Null type");
         Preconditions.checkArgument((byte) rawData == rawData, "Raw data doesn't fit in byte: %s", rawData);
         Preconditions.checkNotNull(meta, "Null item meta");
+        if (ModernSpawnEggs.isSupported()) {
+            if (ModernSpawnEggs.isSpawnEgg(type)) {
+                return INMS.getInstance().createSpawnEggData(type, (byte) rawData, meta);
+            }
+        } else {
+            // We're on an older version, where there is only one type of monster egg
+            if (type == Material.MONSTER_EGG) {
+                return INMS.getInstance().createSpawnEggData(type, (byte) rawData, meta);
+            }
+        }
+        /*
+         * NOTE: I'm keeping Material.MONSTER_EGG out of the switch
+         * since it's deprecated on 1.13.
+         * It'll now be conditional on whether we have 'modern' monster egg support
+         */
         switch (type) {
             case INK_SACK:
                 return new DyeItemData((byte) rawData, meta);
             case SKULL_ITEM:
                 return new SkullItemData((byte) rawData, meta);
             case MONSTER_EGG:
-                return INMS.getInstance().createSpawnEggData((byte) rawData, meta);
             case STAINED_CLAY:
                 return new StainedClayItemData((byte) rawData, meta);
             case WOOL:
