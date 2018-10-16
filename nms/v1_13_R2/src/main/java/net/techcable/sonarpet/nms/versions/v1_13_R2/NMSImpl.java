@@ -1,8 +1,11 @@
 package net.techcable.sonarpet.nms.versions.v1_13_R2;
 
+import com.google.common.base.Preconditions;
+import lombok.SneakyThrows;
 import net.minecraft.server.v1_13_R2.*;
 import net.minecraft.server.v1_13_R2.DamageSource;
 import net.techcable.pineapple.reflection.PineappleField;
+import net.techcable.pineapple.reflection.Reflection;
 import net.techcable.sonarpet.item.ItemData;
 import net.techcable.sonarpet.item.SpawnEggItemData;
 import net.techcable.sonarpet.nms.*;
@@ -15,16 +18,22 @@ import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_13_R2.util.CraftLegacy;
+import org.bukkit.craftbukkit.v1_13_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.invoke.MethodHandle;
+import java.util.Arrays;
+import java.util.HashMap;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class NMSImpl implements INMS {
+public class NMSImpl implements INMS, IModernNMS {
     @Override
     public SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
         checkNotNull(entityType, "Null entity type");
@@ -121,5 +130,46 @@ public class NMSImpl implements INMS {
     @Override
     public NMSSound getNmsSound(Sound bukkitSound) {
         return new NMSSoundImpl(NMSSoundImplKt.getSoundEffect(bukkitSound));
+    }
+
+    // The isLegacy methods seems to be hidden from us somehow
+    private static final MethodHandle MATERIAL_IS_LEGACY_METHOD = Reflection.getMethod(
+            Material.class,
+            "isLegacy"
+    );
+    @SneakyThrows
+    private static boolean isLegacy(Material m) {
+        return (boolean) MATERIAL_IS_LEGACY_METHOD.invokeExact(m);
+    }
+    // Looks like this is the best way to do it :(
+    private static final Material[] LEGACY_MATERIAL_BY_ID;
+    static {
+        Material[] byId = new Material[256];
+        int maxId = 0;
+        for (Material m : CraftLegacy.values()) {
+            if (!isLegacy(m)) continue;
+            int id = m.getId();
+            if (id >= byId.length){
+                byId = Arrays.copyOf(byId, id + 128);
+            }
+            maxId = Math.max(id, maxId);
+        }
+        LEGACY_MATERIAL_BY_ID = Arrays.copyOf(byId, maxId + 1);
+    }
+    @Override
+    public Material getMaterialByLegacyId(int id) {
+        if (id < LEGACY_MATERIAL_BY_ID.length) {
+            Material m = LEGACY_MATERIAL_BY_ID[id];
+            if (m != null) {
+                return CraftLegacy.fromLegacy(m);
+            }
+        }
+        throw new IllegalArgumentException("Invalid id: " + id);
+    }
+
+    @Override
+    public Object getBukkitBlockData(Material m, byte b) {
+        IBlockData data = Block.getByCombinedId((m.getId() << 4) | (int) b);
+        return CraftBlockData.fromData(data);
     }
 }

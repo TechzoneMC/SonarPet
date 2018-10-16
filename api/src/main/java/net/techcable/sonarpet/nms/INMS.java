@@ -17,20 +17,13 @@
 
 package net.techcable.sonarpet.nms;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-
 import com.dsh105.echopet.compat.api.plugin.IEchoPetPlugin;
 import com.google.common.base.Preconditions;
-
-import net.techcable.pineapple.reflection.PineappleField;
 import net.techcable.pineapple.reflection.Reflection;
 import net.techcable.sonarpet.item.SpawnEggItemData;
 import net.techcable.sonarpet.utils.ModernSpawnEggs;
 import net.techcable.sonarpet.utils.NmsVersion;
 import net.techcable.sonarpet.utils.Versioning;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -40,7 +33,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.SpawnEgg;
 
-import static net.techcable.sonarpet.utils.Versioning.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+
+import static net.techcable.sonarpet.utils.Versioning.NMS_VERSION;
+import static net.techcable.sonarpet.utils.Versioning.NMS_VERSION_STRING;
 
 @SuppressWarnings("deprecation")
 public interface INMS {
@@ -138,6 +136,10 @@ class Helper {
             } catch (Throwable t) {
                 throw new AssertionError("NMS constructor threw exception", t);
             }
+        }
+        if (NmsVersion.current().isAtLeast(IModernNMS.MINIMUM_VERSION)
+                && !(instance instanceof IModernNMS)) {
+            throw new RuntimeException("NMSImpl for " + NMS_VERSION_STRING + " should implement IModernNMS");
         }
     }
 }
