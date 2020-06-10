@@ -13,119 +13,50 @@ import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-public class SkullItemData extends ItemData {
-    private final PlayerProfile profile;
+public interface SkullItemData extends ItemData {
+    Optional<PlayerProfile> getProfile();
 
-    public Optional<PlayerProfile> getProfile() {
-        if (getSkullType() == SkullType.HUMAN_SKULL && getMeta().hasOwner()) {
-            String ownerName = getMeta().getOwner();
-            Preconditions.checkState(profile.getName().equals(ownerName), "Profile %s doesn't match owner %s", profile, ownerName);
-            return Optional.of(profile);
-        } else {
-            Preconditions.checkState(profile == null, "Profile %s is present but meta has no owner", profile);
-            return Optional.empty();
-        }
-    }
+    SkullItemData withOwner(UUID owner);
 
+    SkullItemData withOwner(String ownerName);
 
-    protected SkullItemData(byte rawData, ItemMeta meta) {
-        this(rawData, meta, ((SkullMeta) meta).hasOwner() ? ProfileUtils.lookupOptimistically(((SkullMeta) meta).getOwner()) : null);
-    }
+    SkullItemData withOwner(PlayerProfile profile);
 
-    protected SkullItemData(byte rawData, ItemMeta meta, PlayerProfile profile) {
-        super(Material.SKULL_ITEM, rawData, meta);
-        Preconditions.checkArgument(profile == null || profile.getName().equals(((SkullMeta) meta).getOwner()));
-        this.profile = profile;
-    }
+    Optional<UUID> getOwner();
 
-    public SkullItemData withOwner(UUID owner) {
-        Preconditions.checkNotNull(owner, "Null owner uuid");
-        if (getProfile().isPresent() && getProfile().get().getId().equals(owner)) {
-            return this;
-        } else {
-            return withOwner(ProfileUtils.lookupOptimistically(owner));
-        }
-    }
+    Optional<String> getOwnerName();
 
-    public SkullItemData withOwner(String ownerName) {
-        Preconditions.checkNotNull(ownerName, "Null owner name");
-        if (getProfile().isPresent() && getProfile().get().getName().equals(ownerName)) {
-            return this;
-        } else {
-            return withOwner(ProfileUtils.lookupOptimistically(ownerName));
-        }
-    }
+    boolean hasOwner();
 
-    public SkullItemData withOwner(PlayerProfile profile) {
-        return profile.equals(this.profile) ? this : createHuman(profile, this.getMeta());
-    }
-
-    public Optional<UUID> getOwner() {
-        return getProfile().map(PlayerProfile::getId);
-    }
-
-
-    public Optional<String> getOwnerName() {
-        return getProfile().map(PlayerProfile::getName);
-    }
-
-    public boolean hasOwner() {
-        return getProfile().isPresent();
-    }
-
-    public static SkullItemData createHuman() {
+    static SkullItemData createHuman() {
         return create(SkullType.HUMAN_SKULL);
     }
 
-    public static SkullItemData createHuman(PlayerProfile owner) {
+    static SkullItemData createHuman(PlayerProfile owner) {
         return createHuman(owner, Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM));
     }
 
-    public static SkullItemData createHuman(PlayerProfile owner, ItemMeta rawMeta) {
-        Preconditions.checkNotNull(rawMeta, "Null meta");
-        Preconditions.checkNotNull(owner, "Null owner");
-        SkullMeta meta;
-        if (rawMeta instanceof SkullMeta) {
-            meta = (SkullMeta) rawMeta;
-        } else {
-            meta = (SkullMeta) Bukkit.getItemFactory().asMetaFor(rawMeta, Material.SKULL_ITEM);
-        }
-        meta = meta.clone(); // Don't modify their junk
-        meta.setOwner(owner.getName());
-        return create(SkullType.HUMAN_SKULL, meta);
+    static SkullItemData createHuman(PlayerProfile owner, ItemMeta rawMeta) {
+        return ItemDataFactory.getInstance().createHumanSkull(owner, rawMeta);
     }
 
 
-    public static SkullItemData create(SkullType type) {
+    static SkullItemData create(SkullType type) {
         return create(type, Bukkit.getItemFactory().getItemMeta(Material.SKULL_ITEM));
     }
 
-    public static SkullItemData create(SkullType type, ItemMeta meta) {
-        return new SkullItemData(Preconditions.checkNotNull(type, "Null skull type").getId(), Preconditions.checkNotNull(meta, "Null meta"));
+    static SkullItemData create(SkullType type, ItemMeta meta) {
+        return ItemDataFactory.getInstance().createSkull(type, meta);
     }
 
-    public SkullType getSkullType() {
-        int data = getRawData();
-        SkullType[] values = SkullType.values();
-        if (data < 0) {
-            throw new IllegalStateException("Can't get skull type from negative data: " + data);
-        } else if (data >= values.length) {
-            throw new IllegalStateException("Can't get skull type from too large data: " + data);
-        } else {
-            return values[data];
-        }
-    }
+    SkullType getSkullType();
 
-    public ItemData withSkullType(SkullType type) {
-        return withRawData(Preconditions.checkNotNull(type, "Null type").ordinal());
-    }
+    ItemData withSkullType(SkullType type);
 
     @Override
-    public SkullMeta getMeta() {
-        return (SkullMeta) super.getMeta();
-    }
+    SkullMeta getMeta();
 
-    public enum SkullType {
+    enum SkullType {
         SKELETON_SKULL,
         WITHER_SKELETON_SKULL,
         ZOMBIE_SKULL,

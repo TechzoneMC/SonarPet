@@ -8,6 +8,7 @@ import net.techcable.sonarpet.utils.NmsVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.block.BlockState;
 
 import java.lang.invoke.MethodHandle;
 
@@ -32,6 +33,13 @@ public class ModernBlockDataFactory implements BlockDataFactory {
     @SneakyThrows
     public BlockData parseBlockData(String s) {
         return new ModernBlockData(CREATE_BLOCK_DATA_STRING.invoke(s));
+    }
+
+
+    @Override
+    @SneakyThrows
+    public BlockData fromState(BlockState state) {
+        return new ModernBlockData(BLOCK_STATE_GET_DATA.invoke(state));
     }
 
     @Override
@@ -81,5 +89,10 @@ public class ModernBlockDataFactory implements BlockDataFactory {
             "createBlockData",
             Material.class,
             String.class
+    );
+
+    private static final MethodHandle BLOCK_STATE_GET_DATA = Reflection.getMethod(
+            BlockState.class,
+            "getBlockData"
     );
 }

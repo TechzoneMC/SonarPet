@@ -20,18 +20,15 @@ package net.techcable.sonarpet.nms;
 import com.dsh105.echopet.compat.api.plugin.IEchoPetPlugin;
 import com.google.common.base.Preconditions;
 import net.techcable.pineapple.reflection.Reflection;
-import net.techcable.sonarpet.item.SpawnEggItemData;
-import net.techcable.sonarpet.utils.ModernSpawnEggs;
+import net.techcable.sonarpet.item.ItemDataFactory;
+import net.techcable.sonarpet.item.legacy.LegacyItemDataFactory;
 import net.techcable.sonarpet.utils.NmsVersion;
 import net.techcable.sonarpet.utils.Versioning;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.SpawnEgg;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -42,30 +39,9 @@ import static net.techcable.sonarpet.utils.Versioning.NMS_VERSION_STRING;
 
 @SuppressWarnings("deprecation")
 public interface INMS {
-    default SpawnEggItemData createSpawnEggData(Material material, byte rawData, ItemMeta meta) {
-        EntityType entityType;
-        if (ModernSpawnEggs.isSupported()) {
-            entityType = ModernSpawnEggs.getSpawnEggType(material);
-        } else {
-            entityType = new SpawnEgg(rawData).getSpawnedType();
-            if (entityType == null) entityType = SpawnEggItemData.DEFAULT_TYPE;
-        }
-        return createSpawnEggData(entityType, meta); // Convert raw data to entity type
-    }
-
-    default SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
-        if (Versioning.NMS_VERSION.getMajorVersion() >= 9) {
-            throw new UnsupportedOperationException("Can't use bukkit API on versions newer than 1.9");
-        }
-        Preconditions.checkNotNull(meta, "Null meta");
-        Preconditions.checkNotNull(entityType, "Null entity type");
-        return new SpawnEggItemData(Material.MONSTER_EGG, new SpawnEgg(entityType).getData(), meta) {
-            @Override
-            @SuppressWarnings("depreciation") // Bukkit is okay on versions less than 1.9, and we've already checked above
-            public EntityType getSpawnedType() {
-                return ((SpawnEgg) getLegacyMaterialData()).getSpawnedType();
-            }
-        };
+    default ItemDataFactory getItemDataFactory() {
+        NmsVersion.ensureBefore(NmsVersion.v1_13_R2);
+        return new LegacyItemDataFactory();
     }
 
     boolean spawnEntity(NMSInsentientEntity entity, Location location);

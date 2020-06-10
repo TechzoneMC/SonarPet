@@ -6,6 +6,7 @@ import net.techcable.pineapple.reflection.Reflection;
 import net.techcable.sonarpet.utils.NmsVersion;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
 
 import javax.annotation.Nullable;
@@ -39,6 +40,11 @@ public class LegacyBlockDataFactory implements BlockDataFactory {
     @Override
     public BlockData parseBlockData(String s) {
         return new LegacyBlockData(parseLegacyData(s).toLegacyMaterialData());
+    }
+
+    @Override
+    public BlockData fromState(BlockState state) {
+        return new LegacyBlockData(state.getData());
     }
 
     @Override
