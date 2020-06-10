@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 import java.util.*
 
+@Deprecated(message = "Only needed for 1.8.8 compat.....")
 abstract class ParticleBuilder protected constructor(
         var type: Particle,
         var speed: Float = 0f,
@@ -73,7 +74,7 @@ abstract class ParticleBuilder protected constructor(
                 v1_12_R1, v1_11_R1, v1_10_R1, v1_9_R1, v1_9_R2, v1_13_R2 -> {
                     BukkitParticleBuilder(type, speed, amount)
                 }
-                v1_8_R3 -> v18ParticleBuilder(type, speed, amount)
+                 -> v18ParticleBuilder(type, speed, amount)
             }
         }
     }

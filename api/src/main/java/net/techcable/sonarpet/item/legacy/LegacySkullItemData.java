@@ -34,7 +34,8 @@ public class LegacySkullItemData extends LegacyItemData implements SkullItemData
     }
 
     /* package */ LegacySkullItemData(LegacyItemDataFactory factory, byte rawData, ItemMeta meta, PlayerProfile profile) {
-        super(factory, Material.SKULL_ITEM, rawData, meta);
+        // Pretty sure this is okay s
+        super(factory, Material.LEGACY_SKULL_ITEM, rawData, meta);
         Preconditions.checkArgument(profile == null || profile.getName().equals(((SkullMeta) meta).getOwner()));
         this.profile = profile;
     }

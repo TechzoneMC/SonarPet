@@ -107,12 +107,9 @@ public class LegacyItemDataFactory implements ItemDataFactory {
 
     @Override
     public SpawnEggItemData createSpawnEggData(EntityType entityType, ItemMeta meta) {
-        if (Versioning.NMS_VERSION.getMajorVersion() >= 9) {
-            throw new UnsupportedOperationException("Can't use bukkit API on versions newer than 1.9");
-        }
         Preconditions.checkNotNull(meta, "Null meta");
         Preconditions.checkNotNull(entityType, "Null entity type");
-        return new LegacySpawnEggItemData(this, Material.MONSTER_EGG, new SpawnEgg(entityType).getData(), meta) {
+        return new LegacySpawnEggItemData(this, Material.LEGACY_MONSTER_EGG, new SpawnEgg(entityType).getData(), meta) {
             @Override
             @SuppressWarnings("depreciation") // Bukkit is okay on versions less than 1.9, and we've already checked above
             public EntityType getSpawnedType() {
