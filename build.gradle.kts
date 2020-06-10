@@ -1,22 +1,20 @@
-import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.tasks.testing.Test
-import org.gradle.api.tasks.testing.junit.JUnitOptions
 
 buildscript {
     repositories {
-        gradleScriptKotlin()
+        mavenCentral()
     }
     dependencies {
-        classpath("org.ow2.asm:asm-all:5.2") // Used to check for guava compat
-        classpath(kotlinModule("gradle-plugin"))
+        classpath(kotlin("gradle-plugin", version = "1.3.72"))
     }
 }
 plugins {
     id("java")
     id("maven")
-    id("org.jetbrains.kotlin.jvm").version("1.2.51")
-    id("com.github.johnrengelman.shadow").version("1.2.4").apply(false)
+    kotlin("jvm").version("1.3.72")
+    id("com.github.johnrengelman.shadow")
+            .version("5.2.0")
+            .apply(false)
 }
 allprojects {
     apply {
@@ -24,7 +22,7 @@ allprojects {
     }
 
     group = "net.techcable.sonarpet"
-    version = "1.1.0-alpha2-SNAPSHOT"
+    version = "1.2.0-alpha1-SNAPSHOT"
 }
 var versionSignature: String by rootProject.extra
 versionSignature = rawComputeVersionSignature()
@@ -48,7 +46,7 @@ subprojects {
         targetCompatibility = "1.8"
         options.encoding = "UTF-8"
     }
-    tasks.withType<KotlinCompile> {
+    tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions.jvmTarget = "1.8"
     }
     tasks.withType<Test> {
@@ -63,14 +61,27 @@ subprojects {
     }
 
     repositories {
+        /*
+         * NOTE: I have a bunch of local jars to keep
+         * all this legacy code rolling. For now my laptop
+         * is the only place you can compile SonarPet ^_^
+         */
         mavenLocal()
         mavenCentral()
         maven {
             name = "techcable-repo"
             setUrl("https://repo.techcable.net/content/groups/public/")
         }
-        maven { setUrl("https://hub.spigotmc.org/nexus/content/groups/public/") }
+        maven {
+            name = "paper-repo"
+            setUrl("https://papermc.io/repo/repository/maven-public/")
+        }
         maven { setUrl("http://repo.dmulloy2.net/content/groups/public/") }
+        maven {
+            name = "enginehub-repo"
+            setUrl("https://maven.enginehub.org/repo/")
+        }
+        // TODO: What are all these things for!?!
         maven { setUrl("http://repo.md-5.net/content/groups/public/") }
         maven { setUrl("http://ci.hawkfalcon.com/plugin/repository/everything/") }
         maven { setUrl("http://maven.sk89q.com/repo/") }
@@ -79,50 +90,60 @@ subprojects {
         maven { setUrl("http://maven.elmakers.com/repository/") }
     }
 
-    configurations.all {
-        resolutionStrategy {
-            // Force usage of old guava
-            force("com.google.guava:guava:17.0")
-        }
-    }
     dependencies {
+        implementation(kotlin("stdlib-jdk8"))
         testCompile("junit:junit:4.12")
         testCompile("com.googlecode.junit-toolbox:junit-toolbox:2.3")
-        compile("net.techcable:pineapple:0.1.0-beta5")
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:1.2.51")
+        compile("net.techcable:pineapple:0.1.0-beta6")
+        // TODO: Get rid of this
+        // TODO: Drop transitive dependency on "Minecraft-Reflection"
         compile("com.dsh105:Commodus:1.0.6") {
             exclude(module = "Minecraft-Reflection")
         }
+        // TODO: Get rid of this
         compile("com.dsh105:PowerMessage:1.0.1-SNAPSHOT") {
             exclude(module = "Commodus")
         }
         compile("org.slf4j:slf4j-jdk14:1.7.5")
         compile("com.zaxxer:HikariCP:2.4.5")
         /*
-         * An outdated version of ASM is used by Paper.
-         * We need to shade in our (modern) version,
-         * or else we'll use Paper's outdated version and crash.
+         * NOTE: Paper already includes ASM.
+         *
+         * Since we depend on them, will just assume its already present.
+         * Shading in this dependency is unessicarry
+         *
          * The bootstrap loader also depends on ASM to automatically relocate dependencies too,
          * since we need to keep our own seperate version of guava and other things.
          */
-        "shade"("org.ow2.asm:asm:5.2")
-        "shade"("org.ow2.asm:asm-commons:5.2")
+        compileOnly("org.ow2.asm:asm:8.0.1")
+        compileOnly("org.ow2.asm:asm-commons:5.2")
+        /*
+         * This is not included in paper. It's required by the bootstrap loader,
+         * so we have to shade it in directly.
+         *
+         * Not sure if it will causes issues with the not-shaded asm.
+         */
+        // TODO: Does this create issues since we don't shade the other parts of ASM?
         "shade"("org.ow2.asm:asm-util:5.2")
         // Provided dependencies
         /*
-         * Compile against old guava, with emulation where necessary.
-         * Compiling against modern guava causes the source to compile against some missing bytecode.
-         * For example, a new checkArgument(boolean,String,int) overload was added for effeciency, which was missing in old versions.
+         * We only support recent minecraft.
+         * Therefore we can compile against actually modern
+         * guava versions.
          */
-        compileOnly("com.google.guava:guava:17.0")
-        compileOnly("org.bukkit:bukkit:1.12-pre5-SNAPSHOT")
+        compileOnly("com.google.guava:guava:21.0")
+        // We compile against Paper API - not Bukkit or Spigot API
+        compileOnly("com.destroystokyo.paper:paper-api:1.15.2-R0.1-SNAPSHOT")
         compileOnly("org.projectlombok:lombok:1.16.12")
+        // TODO: Is VanishNoPacket still the standard?
+        // Do we need to integrate with someone elese?
         compileOnly("org.kitteh:VanishNoPacket:3.18.7") {
             exclude(module = "Vault")
         }
         compileOnly("com.sk89q:worldedit:6.0.0-SNAPSHOT")
         compileOnly("com.sk89q:worldguard:6.0.0-SNAPSHOT")
-        compileOnly("com.comphenix.protocol:ProtocolLib:3.6.5-SNAPSHOT")
+        // TODO: Update to modern ProtocolLib
+        compileOnly("com.comphenix.protocol:ProtocolLib:4.5.0")
     }
 
     // All test modules depend on the API's test module
