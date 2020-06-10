@@ -24,12 +24,8 @@ import com.google.gson.JsonParser;
 //ToDo: Version Fix Here
 @Getter
 public enum NmsVersion {
-    v1_8_R3,
-    v1_9_R1,
-    v1_9_R2,
-    v1_10_R1,
-    v1_11_R1,
-    v1_12_R1;
+    v1_12_R1,
+    v1_13_R2;
 
     public static final NmsVersion LATEST, EARLIEST;
     private ImmutableMap<String, Integer> metadata;
@@ -119,5 +115,30 @@ public enum NmsVersion {
 
     public static NmsVersion current() {
         return Versioning.NMS_VERSION;
+    }
+
+    public boolean isAtLeast(NmsVersion minimum) {
+        return this.compareTo(minimum) >= 0;
+    }
+    public boolean isBefore(NmsVersion other) {
+        return this.compareTo(other) < 0;
+    }
+    public static void ensureAtLeast(NmsVersion minimum) {
+        NmsVersion current = NmsVersion.current();
+        if (!current.isAtLeast(minimum)) {
+            throw new IllegalStateException("Expected NMS version at least "
+                    + minimum
+                    + ", but got "
+                    + current);
+        }
+    }
+    public static void ensureBefore(NmsVersion maximum) {
+        NmsVersion current = NmsVersion.current();
+        if (!current.isBefore(maximum)) {
+            throw new IllegalStateException("Expected NMS version before "
+                    + maximum
+                    + ", but got "
+                    + current);
+        }
     }
 }

@@ -7,31 +7,16 @@ import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class DyeItemData extends ItemData implements ColoredItemData {
+public interface DyeItemData extends ItemData, ColoredItemData {
+    DyeColor getColor();
 
-    protected DyeItemData(byte rawData, ItemMeta meta) {
-        super(Material.INK_SACK, rawData, meta);
-    }
+    DyeItemData withColor(DyeColor color);
 
-    @SuppressWarnings("deprecation")
-    public DyeColor getColor() {
-        return DyeColor.getByDyeData(getRawData());
-    }
-
-    @SuppressWarnings("deprecation")
-    public DyeItemData withColor(DyeColor color) {
-        return withRawData(Preconditions.checkNotNull(color, "Null color").getDyeData());
-    }
-
-    public DyeItemData withRawData(int rawData) {
-        return (DyeItemData) super.withRawData(rawData);
-    }
-
-    public static DyeItemData create(DyeColor color) {
+    static DyeItemData create(DyeColor color) {
         return create(color, Bukkit.getItemFactory().getItemMeta(Material.INK_SACK));
     }
 
-    public static DyeItemData create(DyeColor color, ItemMeta meta) {
-        return new DyeItemData(Preconditions.checkNotNull(color, "Null color").getDyeData(), meta);
+    static DyeItemData create(DyeColor color, ItemMeta meta) {
+        return ItemDataFactory.getInstance().createDye(color, meta);
     }
 }

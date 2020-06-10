@@ -22,8 +22,7 @@ import com.dsh105.commodus.config.YAMLConfig;
 import com.dsh105.echopet.compat.api.config.ConfigOptions;
 import com.dsh105.echopet.compat.api.config.PetItem;
 import com.dsh105.echopet.compat.api.entity.PetType;
-import com.google.common.collect.ImmutableList;
-
+import net.techcable.sonarpet.item.ItemData;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
@@ -34,8 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-
-import net.techcable.sonarpet.item.ItemData;
 
 public class SelectorLayout {
 
@@ -83,6 +80,14 @@ public class SelectorLayout {
             if (petType != null && GeneralUtil.isEnumType(PetType.class, petType.toUpperCase())) {
                 pt = PetType.valueOf(petType.toUpperCase());
             }
+            String serializedData = config.getInt();
+            if (serializedData != null) {
+               /*
+                * Always prefer using the new system of serialization.
+                * It will gracefully ends our dependence on material ids
+                * once we update to 1.13
+                */
+            }
             int id = config.getInt(s + ".slot-" + i + ".materialId");
             int data = config.getInt(s + ".slot-" + i + ".materialData");
             String name = config.getString(s + ".slot-" + i + ".name");
@@ -99,8 +104,7 @@ public class SelectorLayout {
                     loreList.add(ChatColor.translateAlternateColorCodes('&', part));
                 }
             }
-            Material type = Material.getMaterial(id);
-            selectorLayout.add(new SelectorIcon(i - 1, cmd, pt, ItemData.create(type, data).withDisplayName(name.trim().isEmpty() ? Optional.empty() : Optional.of(name)).withLore(loreList)));
+            selectorLayout.add(new SelectorIcon(i - 1, cmd, pt, basicData.withDisplayName(name.trim().isEmpty() ? Optional.empty() : Optional.of(name)).withLore(loreList)));
         }
 
         selectorMenu = new SelectorMenu();

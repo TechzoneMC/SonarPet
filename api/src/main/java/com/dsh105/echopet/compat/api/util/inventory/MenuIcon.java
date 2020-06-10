@@ -49,11 +49,7 @@ public class MenuIcon {
     }
 
     public Material getType() {
-        return getMaterialData().getItemType();
-    }
-
-    public MaterialData getMaterialData() {
-        return itemData.getMaterialData();
+        return itemData.getType();
     }
 
     public String getName() {

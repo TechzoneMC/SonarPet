@@ -9,7 +9,10 @@ import org.bukkit.Sound;
 
 /**
  * A version independent enumeration of sounds.
+ *
+ * @deprecated Legacy 1.8.8 compat
  */
+@Deprecated
 public enum SafeSound {
     BLAZE_AMBIENT("ENTITY_BLAZE_AMBIENT", "BLAZE_BREATH"),
     BLAZE_DEATH("ENTITY_BLAZE_DEATH", "BLAZE_DEATH"),

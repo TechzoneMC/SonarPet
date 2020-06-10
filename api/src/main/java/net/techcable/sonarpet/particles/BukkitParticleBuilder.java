@@ -6,6 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 
+/**
+ * This is used on all modern versions (v1.8.8+)
+ *
+ * @deprecated Was only used for 1.8.8 support.
+ */
+@Deprecated
 public class BukkitParticleBuilder extends ParticleBuilder {
     public BukkitParticleBuilder(Particle type, float speed, int amount) {
         super(type, speed, amount);
